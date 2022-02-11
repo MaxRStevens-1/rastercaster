@@ -20,7 +20,7 @@ function render() {
   shaderProgram.bind();
   //shaderProgram.setUniform3f('color', 1, 0, 0);
   vao.bind();
-  vao.drawSequence(gl.TRIANGLES);
+  vao.drawIndexed(gl.TRIANGLES);
   vao.unbind();
   shaderProgram.unbind();
 }
@@ -36,15 +36,23 @@ async function initialize() {
 
 
   const positions = [
-    -0.7, -0.5, 0,
+    -0.7,  0.5, 0,
      0.7, -0.5, 0,
-     0.0,  0.5, 0,
+    -0.7, -0.5, 0,
+     //0.7,  0.5, 0.0,
+     .7, .5, 0
+  ];
+
+  const indices = [
+    2, 0, 1,
+    3, 1, 0
   ];
 
   const colors = [
     1, 0, 0,
     0, 1, 0,
     0, 0, 1,
+    1, 0, 1
   ];
 
   
@@ -54,13 +62,14 @@ async function initialize() {
   in vec3 position;
   in vec3 color;
   out vec3 mixColor;
-  uniform vec3 offset;
+  
+  vec3 f() {
+    return vec3 (1,0,1);
+  }
   
   void main() {
     gl_Position = vec4(position, 1.0);
-    mixColor = color;
-    vec3 translatedPosition = position + offset;
-    gl_Position = vec4(translatedPosition, 1.0);
+    mixColor = f();
   }
   `;
 
@@ -73,11 +82,11 @@ async function initialize() {
   }
   `;
   shaderProgram = new ShaderProgram(vertexSource, fragmentSource);
-  shaderProgram.setUniform3f('offset', 0.1, 0.3, 0);
 
   const attributes = new VertexAttributes();
-  attributes.addAttribute('position', 3, 3, positions);
-  attributes.addAttribute('color', 3, 3, colors);
+  attributes.addAttribute('position', 4, 3, positions);
+  attributes.addAttribute('color', 4, 3, colors);
+  attributes.addIndices(indices);
 
 
   vao = new VertexArray(shaderProgram, attributes);
@@ -91,33 +100,8 @@ async function initialize() {
     //radiusInput.addEventListener('input', synchronize);
   onResizeWindow();
 }
-function generateCircle(n, radius) 
-{
-  var positions = new Array();
-  var radChunks = (Math.PI * 2) / n;
-  for (let i = 0; i < n; i++)  
-  {
-    positions.push (radius * Math.cos(radChunks * i),
-      radius * Math.sin(radChunks * i), 0)
-  }
-  const attributes = new VertexAttributes();
-  attributes.addAttribute('position', n, 3, positions);
-  vao = new VertexArray(shaderProgram, attributes);
 
-  render();
-}
+
+
 
 window.addEventListener('load', initialize);
-
-
-function synchronize() {
-  // Release any previous VAO and VBOs.
-  vao?.destroy();
-  attributes?.destroy();
-
-  const n = parseInt(nInput.value);
-  const radius = parseFloat(radiusInput.value);
-  console.log(n, radius);
-  // TODO: regenerate circle and redraw.
-  generateCircle (n, radius);
-}
