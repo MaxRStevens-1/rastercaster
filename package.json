@@ -1,0 +1,13 @@
+{
+    "name": "lab_01",
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "start": "vite --open",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "vite": "^2.7.13"
+    }
+}
