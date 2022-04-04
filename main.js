@@ -7,9 +7,7 @@
   let attributes;
   let shaderProgram;
   let vao;
-  let nInput;
-  let radiusInput;
-  let userInput;
+  let userFunctionInput;
   let mousePosX;
   let mousePosY;
   let pageStartTime;
@@ -19,7 +17,7 @@
     //gl.clearColor(1, 0.5, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     shaderProgram.bind();
-    shaderProgram.setUniform2f ('dimensions', canvas.clientWidth, canvas.clientHeight);
+    shaderProgram.setUniform2f ('dimensions', canvas.width.toFixed(2), canvas.height.toFixed(2));
     shaderProgram.setUniform3f ('mouse', mousePosX, mousePosY, 0);
     shaderProgram.setUniform3f ('colors', 0.0, 1.0, 1.0);
     shaderProgram.setUniform1f ('time', getTime());
@@ -71,25 +69,22 @@
       1, 0, 1
     ];
 
-    userInput = 'vec3 color = vec3(1,0,1);'
+    // done so there is a none blank screen on start up
+    userFunctionInput = 'vec3 color = vec3(1,0,1);'
     
-    // VAO, VBO, shader program setup...
-
     const attributes = new VertexAttributes();
     attributes.addAttribute('position', 4, 3, positions);
     attributes.addIndices(indices);
     shaderProgramHelper(attributes);
 
-
-
-
-
     // Event listeners
     window.addEventListener('resize', onResizeWindow);
     window.addEventListener('keydown', pressEnter);
     window.addEventListener('mousemove', mouseTracker)
+    window.setInterval (onResizeWindow, 100);
 
     onResizeWindow();
+    render()
   }
 
   function mouseTracker (event) {
@@ -98,16 +93,18 @@
     render()
   }
 
+  // basic function to take in user input
   function pressEnter(event) {
     if (event.key === 'Enter') {
-      userInput = document.getElementById('input').value
-      console.log (userInput)
+      userFunctionInput = document.getElementById('input').value
+      console.log (userFunctionInput)
       shaderProgram = shaderProgramHelper(vao.attributes);
       // DO SOMETHING
       render()
     }
   }
 
+  // helper function to redefine shader program
   function shaderProgramHelper (attributes) {
     const vertexSource = `
     in vec3 position;
@@ -131,7 +128,7 @@
     out vec4 fragmentColor;
     
     vec3 f() {
-      ${userInput}
+      ${userFunctionInput}
       return color; 
     }
 
